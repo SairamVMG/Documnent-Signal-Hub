@@ -468,12 +468,18 @@ def extract_sheet_title_kvs(
                     or _canonical_label(label_s)
                 )
              ##------------------   
+                # if label_s.endswith(":") and (not value_s or not str(value_s).strip()):
+                #     for j in range(i + 1, len(cells)):
+                #         next_val = str(cells[j][1]).strip()
+                #     if next_val:
+                #         value_s = next_val
+                #         break
                 if label_s.endswith(":") and (not value_s or not str(value_s).strip()):
                     for j in range(i + 1, len(cells)):
                         next_val = str(cells[j][1]).strip()
-                    if next_val:
-                        value_s = next_val
-                        break
+                        if next_val:
+                            value_s = next_val
+                            break
                 if canonical:
                     _store(canonical, value_s, excel_row, c_value_idx + 1)
                 i += 2
