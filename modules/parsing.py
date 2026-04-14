@@ -365,17 +365,44 @@ def extract_sheet_title_kvs(
     scan_limit = max(header_row_idx or 0, 15)
     found: dict = {}
 
+    # def _store(canonical: str, value: str, excel_row: int, excel_col: int):
+    #     """Store a KV pair only if the canonical key is not yet recorded."""
+    #     if canonical not in found and str(value).strip():
+    #         found[canonical] = {
+    #             "value":     str(value).strip(),
+    #             "original":  str(value).strip(),
+    #             "modified":  str(value).strip(),
+    #             "source":    "title_kv",
+    #             "excel_row": excel_row,
+    #             "excel_col": excel_col,
+    #         }
+    # ── Date-field value validator ──────────────────────────────────────────────
+    _NON_DATE_VALUES = {
+    "current status", "current", "status", "open", "closed", "pending",
+    "n/a", "na", "tbd", "see attached", "as needed", "ongoing",
+    }
+
     def _store(canonical: str, value: str, excel_row: int, excel_col: int):
         """Store a KV pair only if the canonical key is not yet recorded."""
         if canonical not in found and str(value).strip():
+            val_clean = str(value).strip()
+
+        # ── Reject date fields whose value is clearly not a date ──────────
+            if canonical in ("Report Date", "Valuation Date", "Effective Date"):
+                if val_clean.lower() in _NON_DATE_VALUES:
+                    return
+            # Must contain a digit to be a real date
+                if not re.search(r'\d', val_clean):
+                    return
+
             found[canonical] = {
-                "value":     str(value).strip(),
-                "original":  str(value).strip(),
-                "modified":  str(value).strip(),
-                "source":    "title_kv",
-                "excel_row": excel_row,
-                "excel_col": excel_col,
-            }
+            "value":     val_clean,
+            "original":  val_clean,
+            "modified":  val_clean,
+            "source":    "title_kv",
+            "excel_row": excel_row,
+            "excel_col": excel_col,
+        }
 
     for r_idx, row in enumerate(raw_rows[:scan_limit]):
         excel_row = r_idx + 1  # 1-based
