@@ -4,3 +4,4 @@ docx2txt
 azure-ai-formrecognizer
 python-dotenv
 pymupdf
+openpyxl
